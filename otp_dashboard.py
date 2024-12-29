@@ -10,14 +10,25 @@ def load_gtfs_data():
     # Define the zip file path
     zip_file = 'stop_times.txt.zip'
     
-    # Extract the stop_times.txt file from the zip if not already extracted
-    if zipfile.is_zipfile(zip_file):
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
-            zip_ref.extract('stops.txt')       # Also extract stops.txt if needed
-            zip_ref.extract('trips.txt')       # Extract trips.txt if needed
+    # Check if the zip file exists and is valid
+    if not zipfile.is_zipfile(zip_file):
+        st.error(f"Error: {zip_file} is not a valid zip file!")
+        st.stop()
 
-    # Check the file path and existence after extraction
+    # Extract the files from the zip
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_contents = zip_ref.namelist()  # Get the list of files in the zip archive
+
+        # Check for necessary files and extract them
+        files_to_extract = ['stop_times.txt', 'stops.txt', 'trips.txt']
+        for file in files_to_extract:
+            if file in zip_contents:
+                zip_ref.extract(file)
+            else:
+                st.error(f"{file} not found in the zip file!")
+                st.stop()
+
+    # After extraction, check if the files exist
     if not os.path.isfile('stop_times.txt'):
         st.error("stop_times.txt not found!")
         st.stop()
