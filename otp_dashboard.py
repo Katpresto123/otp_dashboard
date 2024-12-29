@@ -3,6 +3,8 @@ import os
 import pandas as pd
 import streamlit as st
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 # Load data function with caching
 @st.cache_data
