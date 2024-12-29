@@ -1,13 +1,25 @@
+import zipfile
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 # Load data function with caching
 @st.cache_data
 def load_gtfs_data():
+    # Define the path to the zip file and the extraction location
+    zip_file_path = 'stop_times.txt.zip'
+    extract_to = 'stop_times.txt'
+
+    # Extract the stop_times.txt from the zip file if it doesn't exist already
+    if not os.path.exists(extract_to):
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extract('stop_times.txt', path='.')
+
+    # Load the data
     stops = pd.read_csv('stops.txt')
-    stop_times = pd.read_csv('stop_times.txt')
+    stop_times = pd.read_csv(extract_to)  # Now loading the extracted file
     trips = pd.read_csv('trips.txt')
     
     # Convert stop_id and arrival_time to string for consistent merging
