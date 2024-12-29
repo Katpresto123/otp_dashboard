@@ -47,4 +47,4 @@ def load_gtfs_data():
 
     otp_data['arrival_time'] = pd.to_datetime(otp_data['arrival_time'], format='%H:%M:%S', errors='coerce')
     random_delays = np.random.randint(-60, 300, size=len(otp_data))
-    otp_data['actual_arrival]
+    otp_data['actual_arrival']
