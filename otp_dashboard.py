@@ -10,57 +10,62 @@ def load_gtfs_data():
     # Define the zip file path
     zip_file = 'stop_times.txt.zip'
     
-   # Extract the stop_times.txt file from the zip
-if zipfile.is_zipfile(zip_file):
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-        zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
+    # Extract the stop_times.txt file from the zip if not already extracted
+    if zipfile.is_zipfile(zip_file):
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
+            zip_ref.extract('stops.txt')       # Also extract stops.txt if needed
+            zip_ref.extract('trips.txt')       # Extract trips.txt if needed
 
-# Check the file path and existence
-if not os.path.isfile('stop_times.txt'):
-    st.error("stop_times.txt not found!")
-    st.stop()
+    # Check the file path and existence after extraction
+    if not os.path.isfile('stop_times.txt'):
+        st.error("stop_times.txt not found!")
+        st.stop()
 
-if not os.path.isfile('stops.txt'):
-    st.error("stops.txt not found!")
-    st.stop()
+    if not os.path.isfile('stops.txt'):
+        st.error("stops.txt not found!")
+        st.stop()
 
-if not os.path.isfile('trips.txt'):
-    st.error("trips.txt not found!")
-    st.stop()
+    if not os.path.isfile('trips.txt'):
+        st.error("trips.txt not found!")
+        st.stop()
 
-# Load the data from the extracted CSV files
-stops = pd.read_csv('stops.txt')
-stop_times = pd.read_csv('stop_times.txt')
-trips = pd.read_csv('trips.txt')
+    # Load the data from the extracted CSV files
+    try:
+        stops = pd.read_csv('stops.txt')
+        stop_times = pd.read_csv('stop_times.txt')
+        trips = pd.read_csv('trips.txt')
 
-    
-    # Convert stop_id and arrival_time to string for consistent merging
-    stops['stop_id'] = stops['stop_id'].astype(str)
-    stop_times['stop_id'] = stop_times['stop_id'].astype(str)
-    
-    # Merge datasets
-    stop_times_trips = stop_times.merge(trips, on="trip_id")
-    otp_data = stop_times_trips.merge(stops, on="stop_id")
-    
-    # Convert arrival_time to datetime
-    otp_data['arrival_time'] = pd.to_datetime(otp_data['arrival_time'], format='%H:%M:%S', errors='coerce')
+        # Convert stop_id and arrival_time to string for consistent merging
+        stops['stop_id'] = stops['stop_id'].astype(str)
+        stop_times['stop_id'] = stop_times['stop_id'].astype(str)
 
-    # Check the length of otp_data and generate random delays
-    num_rows = len(otp_data)
-    if num_rows > 0:
-        # Simulate actual arrival times with delay (in seconds)
-        random_delays = np.random.randint(-60, 300, size=num_rows)  # Ensure this matches the length of otp_data
-        otp_data['actual_arrival_time'] = otp_data['arrival_time'] + pd.to_timedelta(random_delays, unit='s')
-    else:
-        st.error("No data available to process.")
-        return None  # Return None if there is no data to process
-    
-    # Calculate delay and categorize on-time or late
-    otp_data['delay_seconds'] = (otp_data['actual_arrival_time'] - otp_data['arrival_time']).dt.total_seconds()
-    otp_data['on_time'] = otp_data['delay_seconds'].between(-60, 300)
-    
-    return otp_data
+        # Merge datasets
+        stop_times_trips = stop_times.merge(trips, on="trip_id")
+        otp_data = stop_times_trips.merge(stops, on="stop_id")
 
+        # Convert arrival_time to datetime
+        otp_data['arrival_time'] = pd.to_datetime(otp_data['arrival_time'], format='%H:%M:%S', errors='coerce')
+
+        # Check the length of otp_data and generate random delays
+        num_rows = len(otp_data)
+        if num_rows > 0:
+            # Simulate actual arrival times with delay (in seconds)
+            random_delays = np.random.randint(-60, 300, size=num_rows)  # Ensure this matches the length of otp_data
+            otp_data['actual_arrival_time'] = otp_data['arrival_time'] + pd.to_timedelta(random_delays, unit='s')
+        else:
+            st.error("No data available to process.")
+            return None  # Return None if there is no data to process
+
+        # Calculate delay and categorize on-time or late
+        otp_data['delay_seconds'] = (otp_data['actual_arrival_time'] - otp_data['arrival_time']).dt.total_seconds()
+        otp_data['on_time'] = otp_data['delay_seconds'].between(-60, 300)
+
+        return otp_data
+
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        st.stop()
 
 
 # Streamlit app starts here
