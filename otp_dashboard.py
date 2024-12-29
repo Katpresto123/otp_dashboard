@@ -15,6 +15,18 @@ def load_gtfs_data():
         with zipfile.ZipFile(zip_file, 'r') as zip_ref:
             zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
 
+    # check the file path and existence
+    if not os.path.isfile('stop_times.txt'):
+    st.error("stop_times.txt not found!")
+    st.stop()
+if not os.path.isfile('stops.txt'):
+    st.error("stops.txt not found!")
+    st.stop()
+if not os.path.isfile('trips.txt'):
+    st.error("trips.txt not found!")
+    st.stop()
+
+
     # Load the data from the extracted CSV files
     stops = pd.read_csv('stops.txt')
     stop_times = pd.read_csv('stop_times.txt')
