@@ -1,25 +1,22 @@
 import zipfile
+import os
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
-import os
 
 # Load data function with caching
 @st.cache_data
 def load_gtfs_data():
-    # Define the path to the zip file and the extraction location
-    zip_file_path = 'stop_times.txt.zip'
-    extract_to = 'stop_times.txt'
+    # Define the zip file path
+    zip_file = 'stop_times.txt.zip'
+    
+    # Extract the stop_times.txt file from the zip
+    if zipfile.is_zipfile(zip_file):
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
 
-    # Extract the stop_times.txt from the zip file if it doesn't exist already
-    if not os.path.exists(extract_to):
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extract('stop_times.txt', path='.')
-
-    # Load the data
+    # Load the data from the extracted CSV files
     stops = pd.read_csv('stops.txt')
-    stop_times = pd.read_csv(extract_to)  # Now loading the extracted file
+    stop_times = pd.read_csv('stop_times.txt')
     trips = pd.read_csv('trips.txt')
     
     # Convert stop_id and arrival_time to string for consistent merging
@@ -41,6 +38,7 @@ def load_gtfs_data():
     otp_data['on_time'] = otp_data['delay_seconds'].between(-60, 300)
     
     return otp_data
+
 
 # Streamlit app starts here
 st.title("TriMet On-Time Performance Dashboard")
