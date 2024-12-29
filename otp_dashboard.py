@@ -10,27 +10,29 @@ def load_gtfs_data():
     # Define the zip file path
     zip_file = 'stop_times.txt.zip'
     
-    # Extract the stop_times.txt file from the zip
-    if zipfile.is_zipfile(zip_file):
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
+   # Extract the stop_times.txt file from the zip
+if zipfile.is_zipfile(zip_file):
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extract('stop_times.txt')  # Extract the stop_times.txt file
 
-    # check the file path and existence
-    if not os.path.isfile('stop_times.txt'):
+# Check the file path and existence
+if not os.path.isfile('stop_times.txt'):
     st.error("stop_times.txt not found!")
     st.stop()
+
 if not os.path.isfile('stops.txt'):
     st.error("stops.txt not found!")
     st.stop()
+
 if not os.path.isfile('trips.txt'):
     st.error("trips.txt not found!")
     st.stop()
 
+# Load the data from the extracted CSV files
+stops = pd.read_csv('stops.txt')
+stop_times = pd.read_csv('stop_times.txt')
+trips = pd.read_csv('trips.txt')
 
-    # Load the data from the extracted CSV files
-    stops = pd.read_csv('stops.txt')
-    stop_times = pd.read_csv('stop_times.txt')
-    trips = pd.read_csv('trips.txt')
     
     # Convert stop_id and arrival_time to string for consistent merging
     stops['stop_id'] = stops['stop_id'].astype(str)
