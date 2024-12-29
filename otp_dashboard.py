@@ -15,8 +15,8 @@ def load_gtfs_data():
     # Extract files from the ZIP archive if it's valid
     if zipfile.is_zipfile(zip_file):
         with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            # Extract all files from the zip
-            zip_ref.extractall()  # This will extract all files in the current directory
+            # Extract all files in the current directory
+            zip_ref.extractall()  
 
     # Check if the necessary files are extracted
     if not os.path.isfile('stop_times.txt'):
